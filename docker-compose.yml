@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  server-admin:
+    container_name: tradingfund-server-admin
+    working_dir: /app/src
+    build:
+      context: ./
+      dockerfile: ./docker/dev.Dockerfile
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+       - ./:/app/src
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+    depends_on:
+      - mongo
+
+  # mongo:
+  #   container_name: fradingfund-server-admin-mongo
+  #   image: mongo:4.4
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=root
+  #     - MONGO_INITDB_ROOT_PASSWORD=root
+  #     - MONGO_INITDB_DATABASE=database
+  #   logging:
+  #     driver: none
+
