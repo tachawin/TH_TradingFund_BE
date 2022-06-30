@@ -162,8 +162,8 @@ aws:
     region: ap-southeast-1
     credentials:
       default:
-        aws_access_key_id: AKIAUQEMCUS5SKBRNNEY
-        aws_secret_access_key: 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
+        aws_access_key_id: AKIAUQEMCUS56MDC55VO
+        aws_secret_access_key: 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
   sns:
     api_version: 2010-03-31
   s3:
