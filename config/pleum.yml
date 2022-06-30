@@ -1,0 +1,202 @@
+app:
+  domain: http://luckynobug.com
+  kind: production
+  port: 8080
+  ip: 0.0.0.0
+
+cors:
+  options:
+    credentials: true
+    exposedHeaders: ['set-cookie']
+    methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
+
+cookie:
+  admin:
+    refresh_token:
+      cookie_name: refresh_token
+      secret: v'jG!~24TfXuXymQt`X]a<d#5dBB8gj3wY/&-pMbKyg!g>F;_:,~N&V!j~t`vsc5aG7Qs9k~YSmc`uBeDgaL2H^[URW\>_9yC6xv,,nKkq!_B[CRsd2'saeADKrAWbb*
+      options:
+        domain: luckynobug.com
+        httpOnly: true
+        secure: false
+        expires: 7
+        signed: true
+        sameSite: Lax
+        path: /
+  customer:
+    refresh_token:
+      cookie_name: refresh_token
+      secret: v'jG!~24TfXuXymQt`X]a<d#5dBB8gj3wY/&-pMbKyg!g>F;_:,~N&V!j~t`vsc5aG7Qs9k~YSmc`uBeDgaL2H^[URW\>_9yC6xv,,nKkq!_B[CRsd2'saeADKrAWbb*
+      options:
+        domain: luckynobug.com
+        httpOnly: true
+        secure: false
+        expires: 7
+        signed: true
+        sameSite: Lax
+        path: /
+
+encrypt:
+  webhook_transaction:
+    vector: 2f873a8da63e5e36
+    secret: 696O9cEuW9w4AsQTK3OaUCr1tVPjuto1
+    algorithm: aes-256-cbc
+    encoding: utf8
+    format: hex
+    extractor:
+      header: x-api-key
+
+jwt:
+  admin:
+    refresh_token:
+      namespace: admin_refresh_token_namespace
+      secret:
+        jwt_secret: 5.($U4!+G8p@s!&68/2F*MDVM];GLvDW38\LUf=QZj+*K)%]kxQ-@BgY]]YY{^rdWR3WaE5'-J.\jH/Me9,u;wF}<U#)^7V,W<fz[jq$3LL7M7>3ueCDsVmaFp$:SF_d
+      options:
+        expires_in: 7d
+        issuer: tradingfund-admin-refresh-token
+        audience: tradingfund-admin-refresh-token
+    access_token:
+      namespace: admin_access_token_namespace
+      secret:
+        jwt_secret: 94FA9A837E55505FB421A24CD40D7C6F7557880BFB68E586068BCC7B3DE6C9C0
+      options:
+        expires_in: 15m
+        issuer: tradingfund-admin-access-token
+        audience: tradingfund-admin-access-token
+  customer:
+    refresh_token:
+      namespace: customer_refresh_token_namespace
+      secret:
+        jwt_secret: 2CmM6rwSn/FB,KTaxz_4eYZrvRHcuXY+ywRPU2&eUJ6h)yM+wC.4:p:dU7pWcfh[vnF[ua+@D]*'/^&H]^x}$Lj#}M]%]~M*yPssDan#pBY\+6;QE>(dZ[v3-4&)eA*9
+      options:
+        expires_in: 7d
+        issuer: tradingfund-admin-refresh-token
+        audience: tradingfund-admin-refresh-token
+    access_token:
+      namespace: customer_access_token_namespace
+      secret:
+        jwt_secret: 648F7750562E8C36DAAC35927998DA509D96368ED989645E4E590F5FF91C13E8
+      options:
+        expires_in: 15m
+        issuer: tradingfund-admin-access-token
+        audience: tradingfund-admin-access-token
+
+multipart:
+  options:
+    limits:
+      fieldNameSize: 100
+      fieldSize: 100
+      fields: 1
+      fileSize: 500000
+      files: 1
+      headerPairs: 2000
+
+db:
+  mongo:
+    required:
+      isAuth: true
+    protocol: mongodb+srv
+    username: tradingfund
+    password: TradingFund01
+    host: cluster0.uf9qg.mongodb.net
+    database: tradingfund-dev
+    options: ?retryWrites=true&w=majority
+    collections:
+      system_setting: system-settings
+      admin: user-admins
+      customer: user-customers
+      level: user-customer-levels
+      bank: user-company-banks
+      product: user-products
+      transaction: transactions
+      temp_transaction: temp-transactions
+      redeem: user-redeems
+      credit_condition: user-credit-conditions
+      api_external_services: api-external-services
+      referral_list: referral-list
+      job_events_failed: job-events-failed
+  redis:
+    protocol: redis
+    username: default
+    password: Ujla8weHhsuD4dAl3sXiIZtvhv2vcwvx
+    host: redis-18497.c295.ap-southeast-1-1.ec2.cloud.redislabs.com
+    port: 18497
+    database: /tradingfund
+    keys:
+      admin:
+        verify_otp:
+          expires_in: 900
+        verify_refresh_token:
+          expires_in: 604800
+      customer:
+        verify_otp:
+          expires_in: 900
+        verify_refresh_token:
+          expires_in: 604800
+
+queue:
+  bullmq:
+    wallet:
+      name: wallet_queue_prod
+      worker:
+        processor:
+          wallet:
+            path: ../workers/wallet.worker.ts
+            options:
+              concurrency: 1
+      job:
+        deposit_action: wallet_deposit_action
+        withdraw_action: wallet_withdraw_action
+        withdraw_and_waive_action: wallet_withdraw_and_waive_action
+      options:
+        attempts: 3
+        backoff:
+          type: 'exponential'
+          delay: 1500
+        removeOnComplete: true
+        removeOnFail: 1500
+
+aws:
+  meta:
+    region: ap-southeast-1
+    credentials:
+      default:
+        aws_access_key_id: AKIAUQEMCUS5SKBRNNEY
+        aws_secret_access_key: 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
+  sns:
+    api_version: 2010-03-31
+  s3:
+    bucket:
+      payslip:
+        name: tradingfund-payslip
+        prefix_key: tradingfund-payslip
+        extension: .jpg
+        base_object_url: https://tradingfund-payslip.s3.ap-southeast-1.amazonaws.com
+      product_preview:
+        name: tradingfund-product-preview
+        prefix_key: tradingfund-product
+        extension: .jpg
+        base_object_url: https://tradingfund-product-preview.s3.ap-southeast-1.amazonaws.com
+      level_image:
+        name: tradingfund-level-image
+        prefix_key: tradingfund-level
+        extension: .jpg
+        base_object_url: https://tradingfund-level-image.s3.ap-southeast-1.amazonaws.com
+
+client:
+  wallet:
+    fetcher:
+      base_url: http://th-funding.com
+    options:
+      ag_code: A3O2J2H1
+      secret_key: fw9NAdT111mVrNp7
+    user_prefix:
+      th: thai
+  transaction:
+    fetcher:
+      base_url: https://atb.luckynobug.com
+      headers:
+        api_key:
+          key: x-api-key
+          value: a8aa283f03ed8572edd4bce7aaa01e0d0c9354465653130d65ef28fb17f91fc2
