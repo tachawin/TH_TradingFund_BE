@@ -162,28 +162,27 @@ aws:
     region: ap-southeast-1
     credentials:
       default:
-        aws_access_key_id: AKIAUQEMCUS56MDC55VO
-        aws_secret_access_key: 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
+        aws_access_key_id: AKIAT6ZG2VU75ZLPXGVQ
+        aws_secret_access_key: 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 Hide
   sns:
     api_version: 2010-03-31
   s3:
     bucket:
       payslip:
-        name: tradingfund-payslip
-        prefix_key: tradingfund-payslip
+        name: tradingfund-payslip-prod
+        prefix_key: tradingfund-payslip-prod
         extension: .jpg
-        base_object_url: https://tradingfund-payslip.s3.ap-southeast-1.amazonaws.com
+        base_object_url: https://tradingfund-payslip-prod.s3.us-west-1.amazonaws.com/
       product_preview:
-        name: tradingfund-product-preview
-        prefix_key: tradingfund-product
+        name: tradingfund-product-preview-prod
+        prefix_key: tradingfund-product-prod
         extension: .jpg
-        base_object_url: https://tradingfund-product-preview.s3.ap-southeast-1.amazonaws.com
+        base_object_url: https://tradingfund-product-preview-prod.s3.us-west-1.amazonaws.com/
       level_image:
-        name: tradingfund-level-image
-        prefix_key: tradingfund-level
+        name: tradingfund-level-image-prod
+        prefix_key: tradingfund-level-prod
         extension: .jpg
-        base_object_url: https://tradingfund-level-image.s3.ap-southeast-1.amazonaws.com
-
+        base_object_url: https://tradingfund-level-image-prod.s3.us-west-1.amazonaws.com/
 client:
   wallet:
     fetcher:

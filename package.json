@@ -7,6 +7,7 @@
     "clean": "rimraf dist",
     "start:dev": "NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
     "start:production": "NODE_ENV=production node dist/server.js",
+    "start:new": "NODE_ENV=new node dist/server.js",
     "build": "tsc --listEmittedFiles ",
     "test": "NODE_ENV=development jest --watchAll --coverage --config 'jest.config.js'"
   },
