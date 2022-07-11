@@ -50,6 +50,14 @@ const refreshTokenAdminAuthPlugin = (fastify: FastifyInstance, opts: FastifyPlug
     secret: config.jwt.admin.refresh_token.secret.jwt_secret,
     namespace: config.jwt.admin.refresh_token.namespace,
     jwtVerify: 'jwtVerifyRefreshTokenAdmin',
+    verify: {
+      extractToken: (request) => {
+        const refreshTokenCookieName = config.cookie.admin.refresh_token.cookie_name;
+        const cookieUnsigned = request.unsignCookie(request.cookies[refreshTokenCookieName]);
+
+        return cookieUnsigned.value;
+      },
+    },
     cookie: {
       cookieName: config.cookie.admin.refresh_token.cookie_name,
       signed: config.cookie.admin.refresh_token.options.signed,

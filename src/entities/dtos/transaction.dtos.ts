@@ -1,6 +1,5 @@
 import { MongoMatchFilter } from '../interfaces/helper/mongo.types';
 import {
-  DepositStatus,
   TransactionType,
   TransactionTypeConstant,
   TransactionStatus,
@@ -37,14 +36,14 @@ export interface WithdrawExternalActionResult {
 export type WithdrawExternalActionResponse = Promise<WithdrawExternalActionResult>
 
 export interface TransactionListFilter {
-  status?: DepositStatus | MongoMatchFilter<DepositStatus>
+  status?: TransactionStatus | MongoMatchFilter<TransactionStatus>
   transactionType?: TransactionType | MongoMatchFilter<TransactionType>
   customerId?: string
   companyBankId?: string | MongoMatchFilter<string>
 }
 
 export interface TransactionListFilterDTO {
-  status?: TransactionStatus[]
+  status?: TransactionStatus | TransactionStatus[]
   bankName?: string | string[]
   companyBankId?: string | string[]
   customerId?: string

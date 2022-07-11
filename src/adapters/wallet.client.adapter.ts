@@ -10,9 +10,12 @@ import {
   DepositResponse,
   WithdrawRequest,
   WithdrawResponse,
+  SummaryReportRequest,
+  SummaryReportResponse,
 } from '../entities/dtos/wallet.dtos';
 
 import { LError } from '../helper/errors.handler';
+import { toDateTHTimeZoneByDate } from '../helper/time.handler';
 
 class WalletClientAdapter {
   static instance = null;
@@ -91,6 +94,38 @@ class WalletClientAdapter {
     }
   }
 
+  public async summaryReport(customerInfo: SummaryReportRequest): SummaryReportResponse {
+    try {
+      const today = toDateTHTimeZoneByDate();
+      const dateStart = customerInfo.dateStart || toDateTHTimeZoneByDate(new Date(today.getFullYear(), today.getMonth(), 1)).toISOString().split('T')[0];
+      const dateEnd = customerInfo.dateEnd || toDateTHTimeZoneByDate(new Date(today.getFullYear(), today.getMonth() + 1, 0)).toISOString().split('T')[0];
+      const type = customerInfo.type || '';
+
+      const ts = Date.now();
+      const sign = this.signature(ts);
+
+      const { username } = customerInfo;
+
+      const payload = {
+        username: this.usernameWithPrefix(username),
+        type,
+        dateStart,
+        dateEnd,
+      };
+
+      const { data } = await this.fetcher.post(
+        `/api/cmd/SummaryReport?agCode=${this.ag_code}&timestamp=${ts}&signature=${sign}`,
+        payload,
+      );
+
+      console.info(`[WalletClientAdapter.summaryReport]: get summat report success with payload, username:${payload.username}, dateStart:${dateStart}, dateEnd:${dateEnd}`);
+
+      return data;
+    } catch (error) {
+      throw LError('[WalletClientAdapter.summaryReport]: unable to call get wallet summary report specific customer to external API', error);
+    }
+  }
+
   public async deposit(transaction: DepositRequest): DepositResponse {
     try {
       const { username } = transaction;
@@ -98,17 +133,17 @@ class WalletClientAdapter {
       const ts = Date.now();
       const sign = this.signature(ts);
 
-      console.log(`/api/cmd/deposit?agCode=${this.ag_code}&timestamp=${ts}&signature=${sign}`);
+      console.info(`/api/cmd/deposit?agCode=${this.ag_code}&timestamp=${ts}&signature=${sign}`);
 
       const { data } = await this.fetcher.post(
-        `/api/cmd/deposidt?agCode=${this.ag_code}&timestamp=${ts}&signature=${sign}`,
+        `/api/cmd/deposit?agCode=${this.ag_code}&timestamp=${ts}&signature=${sign}`,
         {
           ...transaction,
           username: this.usernameWithPrefix(username),
         },
       );
 
-      console.log('[WalletClientAdapter.deposit]: deposit response, ', data);
+      console.info('[WalletClientAdapter.deposit]: deposit response, ', data);
 
       return data;
     } catch (error) {
@@ -131,7 +166,7 @@ class WalletClientAdapter {
         },
       );
 
-      console.log('[WalletClientAdapter.withdraw]: withdraw response, ', data);
+      console.info('[WalletClientAdapter.withdraw]: withdraw response, ', data);
 
       return data;
     } catch (error) {

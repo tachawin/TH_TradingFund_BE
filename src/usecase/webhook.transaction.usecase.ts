@@ -128,7 +128,7 @@ async function saveDepositTransaction(event: TransactionWebhookEvent): Promise<v
     };
 
     await tempTransactionRepo.saveDepositTempTransaction(transaction);
-    console.log('[WebhookTransactionUsecase.saveDepositTransaction]: save deposit transaction to temp database successfully ✅');
+    console.info('[WebhookTransactionUsecase.saveDepositTransaction]: save deposit transaction to temp database successfully ✅');
 
     throw LError(`[WebhookTransactionUsecase.saveDepositTransaction]: unable to save deposit transaction event from webhook, hash:${hash || 'hash_unknown'}`, error);
   }

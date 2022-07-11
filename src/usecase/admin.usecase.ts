@@ -13,6 +13,7 @@ import {
 } from '../entities/schemas/features.schema';
 
 import { LError } from '../helper/errors.handler';
+import { hashing } from '../helper/hash.handler';
 
 import AdminRepository from '../repositories/admin.repository';
 
@@ -72,6 +73,16 @@ async function updateAdminPermission(adminId: string, newPermission: FeatureAcce
   }
 }
 
+async function changeAdminPassword(adminId: string, newPassword: string): Promise<void> {
+  try {
+    const passwordHashed = hashing(newPassword);
+
+    await adminRepo.updateAdmin(adminId, { password: passwordHashed });
+  } catch (error) {
+    throw LError('[usecase.changeAdminPassword]: unable to change admin password', error);
+  }
+}
+
 async function deleteAdmin(adminId: string, action: string): Promise<boolean> {
   try {
     if (action === ACTION.DELETE.HARD) {
@@ -103,4 +114,5 @@ export default {
   updateAdmin,
   deleteAdmin,
   updateAdminPermission,
+  changeAdminPassword,
 };

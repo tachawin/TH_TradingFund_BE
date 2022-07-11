@@ -231,7 +231,7 @@ class CustomerLevelRepository {
         sortOptions = { createdAt: -1 };
       }
 
-      console.log(query, sortOptions);
+      console.info(query, sortOptions);
 
       const result = await this._model.find(query, { _id: 0, password: 0, ...fields }).sort(sortOptions);
 

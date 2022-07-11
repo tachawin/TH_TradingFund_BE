@@ -45,11 +45,11 @@ async function depositWallet(payload: DepositRequest):Promise<void> {
     await customerRepo.markLastDepositAmountAndUpdateTotalDepositAmount(username, amount);
     TRANSACTION_STATUS = TRANSACTION_STATUS_ACTION.CUSTOMER.UPDATE.LAST_DEPOSIT;
 
-    console.log('[Processor.depositWallet]: deposit wallet success');
+    console.info('[Processor.depositWallet]: deposit wallet success');
   } catch (error) {
     if (TRANSACTION_STATUS === TRANSACTION_STATUS_ACTION.WALLET.DEPOSIT) {
       await walletClient.withdraw(payload);
-      console.log('[Processor.depositWallet]: recover deposit wallet successfully ✅');
+      console.info('[Processor.depositWallet]: recover deposit wallet successfully ✅');
     }
 
     throw LError(`[Processor.depositWallet]: unable to deposit wallet, TRANSACTION_STATUS:${TRANSACTION_STATUS}`, error);
@@ -59,7 +59,7 @@ async function depositWallet(payload: DepositRequest):Promise<void> {
 async function withdrawWallet(payload: WithdrawRequest): Promise<void> {
   try {
     await walletClient.withdraw(payload);
-    console.log('[Processor.withdrawWallet]: withdraw wallet success');
+    console.info('[Processor.withdrawWallet]: withdraw wallet success');
   } catch (error) {
     throw LError('[Processor.withdrawWallet]: unable to withdraw wallet', error);
   }
@@ -100,7 +100,7 @@ async function withdrawWalletAndWaive(payload: WithdrawAndWaiveRequest): Promise
     await bankCompanyRepo.updateBalanceCompanyBank(fromAccount, remainingBalance);
     TRANSACTION_STATUS = TRANSACTION_STATUS_ACTION.COMPANY.UPDATE.BALANCE;
 
-    console.log('[Processor.withdrawWalletAndWaive]: withdraw wallet success');
+    console.info('[Processor.withdrawWalletAndWaive]: withdraw wallet success');
   } catch (error) {
     const [hashRecover] = generateHashTransaction(accountTo, username, amount);
 
@@ -111,7 +111,7 @@ async function withdrawWalletAndWaive(payload: WithdrawAndWaiveRequest): Promise
         amount,
       });
 
-      console.log('[Processor.withdrawWalletAndWaive]: recover withdraw wallet successfully ✅');
+      console.info('[Processor.withdrawWalletAndWaive]: recover withdraw wallet successfully ✅');
     }
 
     if (TRANSACTION_STATUS === TRANSACTION_STATUS_ACTION.BANK.WITHDRAW) {
@@ -122,7 +122,7 @@ async function withdrawWalletAndWaive(payload: WithdrawAndWaiveRequest): Promise
       });
 
       LError('[Processor.withdrawWalletAndWaive]: ****URGENT ERROR: have to deposit manual, recover customer credit and wallet successfully');
-      console.log('[Processor.withdrawWalletAndWaive]: recover withdraw wallet and update customer credit successfully ✅');
+      console.info('[Processor.withdrawWalletAndWaive]: recover withdraw wallet and update customer credit successfully ✅');
     }
 
     throw LError(`[Processor.withdrawWalletAndWaive]: unable to withdraw wallet for waiving transaction, targetTransactionHash:${transactionHash}, TRANSACTION_STATUS:${TRANSACTION_STATUS}`, error);

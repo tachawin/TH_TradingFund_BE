@@ -12,6 +12,7 @@ import {
   WithdrawActonManualBodyRequest,
 } from '../entities/dtos/withdraw.transaction.dtos';
 import { AdminStatusConstant } from '../entities/schemas/admin.schema';
+import { TransactionStatus } from '../entities/schemas/transaction.schema';
 
 import { toFilterTransactionUseBankFullName } from '../helper/bank.handler';
 import responseHandler from '../helper/response.handler';
@@ -43,14 +44,17 @@ class WithdrawTransactionRoutes {
 
           let parsedFilter = { ...filters };
 
-          const { bankName } = filters;
+          const { bankName, status, companyBankId } = filters;
           if (bankName && typeof bankName === 'string') {
             parsedFilter = toFilterTransactionUseBankFullName({ ...parsedFilter, bankName: bankName.split(',') });
           }
 
-          const { companyBankId } = filters;
           if (companyBankId && typeof companyBankId === 'string') {
             parsedFilter = { ...parsedFilter, companyBankId: companyBankId.split(',') };
+          }
+
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...parsedFilter, status: status.split(',') as TransactionStatus[] };
           }
 
           const result = await withdraw.listWithdrawTransaction(withdrawType, parsedFilter);
@@ -121,13 +125,37 @@ class WithdrawTransactionRoutes {
       },
     );
 
+    fastify.post<{ Body: { transactionId: string}; }>(
+      '/request/cancel',
+      {
+        preValidation: [
+          (fastify as any).auth_admin_access_token,
+        ],
+      },
+      async (request, reply) => {
+        responseHandler(async () => {
+          const { transactionId } = request.body;
+
+          if (!transactionId) {
+            return { code: 400, message: 'transaction id required' };
+          }
+
+          await withdraw.cancelRequestWithdrawTransaction(transactionId);
+
+          return { acknowledge: true };
+        }, reply);
+
+        await reply;
+      },
+    );
+
     fastify.post(
       '/upload/payslip',
       {
         config: {
           requiredStatus: AdminStatusConstant.ACTIVE,
           requiredFeatures: {
-            deposit: '1110',
+            withdraw: '1110',
           },
         },
         preValidation: [
@@ -159,7 +187,7 @@ class WithdrawTransactionRoutes {
         config: {
           requiredStatus: AdminStatusConstant.ACTIVE,
           requiredFeatures: {
-            deposit: '1100',
+            withdraw: '1100',
           },
         },
         preValidation: [
@@ -178,13 +206,21 @@ class WithdrawTransactionRoutes {
               if (!transaction.payslipPictureURL) {
                 return { code: 400, message: 'admin must to attach payslip image URL to confirm the transaction' };
               }
-              const transactionManual = await withdraw.actionWithdrawTransactionManual(transaction, adminId);
+              const [manualData, manualErr] = await withdraw.actionWithdrawTransactionManual(transaction, adminId);
 
-              return transactionManual;
+              if (manualErr) {
+                return { code: 204, err: manualErr.message };
+              }
+
+              return { code: 201, data: manualData };
             case 'auto':
-              const transactionAuto = await withdraw.actionWithdrawTransactionAutomatic(transaction, adminId);
+              const [autoData, autoErr] = await withdraw.actionWithdrawTransactionAutomatic(transaction, adminId);
 
-              return transactionAuto;
+              if (autoErr) {
+                return { code: 204, err: autoErr };
+              }
+
+              return { code: 201, data: autoData };
             default:
               return { code: 400, message: 'action type not support' };
           }

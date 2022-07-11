@@ -43,10 +43,10 @@ class TransactionClientAdapter {
     try {
       const { data } = await this.fetcher.post('/api/system/bank/scb/withdraw', transaction);
 
-      console.log('[TransactionClientAdapter.withdraw]: withdraw transaction response, ', data);
+      console.info('[TransactionClientAdapter.withdraw]: withdraw transaction response, ', data);
       return data;
     } catch (error) {
-      console.log(error);
+      console.info(error);
       throw LError('[TransactionClientAdapter.withdraw]: unable to call withdraw to external API', error);
     }
   }

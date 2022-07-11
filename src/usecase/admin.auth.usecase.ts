@@ -176,7 +176,7 @@ async function adminRenewAccessTokenFromRefreshToken(refreshToken: string): Prom
     const key = redisClient.getKeyAdminRefreshToken(refreshToken);
     const exists = await redisClient.exists(key);
     if (exists === 0) {
-      throw LError('[AutUsecase.renewAccessTokenFromRefreshToken]: unable to get the refresh token on cache');
+      return '';
     }
 
     const adminId = await redisClient.get(key);

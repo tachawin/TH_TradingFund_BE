@@ -173,26 +173,34 @@ async function updateRedeem(redeemId: string, newRedeemInfo: UpdateRedeemDTO): P
 
 async function updateRedeemStatus(redeemId: string, adminId: string, newStatus: RedeemStatus): Promise<[RedeemResult, Error]> {
   try {
-    const {
-      mobileNumber, point, redeemType, status, customerId,
-    } = await redeemRepo.findRedeemByRedeemID(redeemId);
-    const { point: customerPoint, bankAccountNumber } = await customerRepo.findCustomerByCustomerID(customerId);
+    if (newStatus !== RedeemStatusConstant.REJECT) {
+      const {
+        mobileNumber, point, redeemType, status, customerId,
+      } = await redeemRepo.findRedeemByRedeemID(redeemId);
+      const customer = await customerRepo.findCustomerByCustomerID(customerId);
 
-    if (customerPoint < point) {
-      return [null, LError('[usecase.updateRedeemStatus]: customer point are not enough')];
-    }
+      if (!customer) {
+        return [null, LError('[usecase.updateRedeemStatus]: customer is not exist')];
+      }
 
-    if (status === RedeemStatusConstant.SUCCESS) {
-      return [null, LError('[usecase.updateRedeemStatus]: this request is already success')];
-    }
+      const { point: customerPoint, bankAccountNumber } = customer;
 
-    if (newStatus === RedeemStatusConstant.SUCCESS && redeemType === RedeemTypeConstant.CREDIT) {
-      const [hash] = generateHashTransaction(bankAccountNumber, mobileNumber, point);
-      await queue.produceDepositJob({
-        username: mobileNumber,
-        amount: point,
-        hash,
-      });
+      if (customerPoint < point) {
+        return [null, LError('[usecase.updateRedeemStatus]: customer point are not enough')];
+      }
+
+      if (status === RedeemStatusConstant.SUCCESS) {
+        return [null, LError('[usecase.updateRedeemStatus]: this request is already success')];
+      }
+
+      if (newStatus === RedeemStatusConstant.SUCCESS && redeemType === RedeemTypeConstant.CREDIT) {
+        const [hash] = generateHashTransaction(bankAccountNumber, mobileNumber, point);
+        await queue.produceDepositJob({
+          username: mobileNumber,
+          amount: point,
+          hash,
+        });
+      }
     }
 
     const updatedRedeem = await redeemRepo.updateRedeem(redeemId, {

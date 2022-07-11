@@ -35,7 +35,7 @@ class MongoAdapter {
   }
 
   private connected() {
-    console.log('[MongoAdapter.connected]: Mongoose has connected 🎉');
+    console.info('[MongoAdapter.connected]: Mongoose has connected 🎉');
   }
 
   private error(error: Error) {

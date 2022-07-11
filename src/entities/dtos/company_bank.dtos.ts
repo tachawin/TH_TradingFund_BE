@@ -31,7 +31,7 @@ export type UpdateInformationCompanyBankBodyRequest = UpdateCompanyBankDTO
 export interface CompanyBankListFilterDTO {
   type?: string | string[]
   bank?: string | string[]
-  status?: CompanyBankStatus
+  status?: CompanyBankStatus | CompanyBankStatus[]
   startCreated?: string
   endCreated?: string
   keyword?: string

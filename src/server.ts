@@ -13,6 +13,7 @@ import AdminAuthRoutes from './routes/admin.auth.route';
 import AdminUserRoutes from './routes/admin.user.route';
 import APIExternalServiceRoutes from './routes/api.route';
 import BankRoutes from './routes/bank.route';
+import CashbackRoutes from './routes/cashback.route';
 import CompanyBankRoutes from './routes/company.bank.route';
 import RedeemCreditRoutes from './routes/credit.redeem.route';
 import CreditConditionRoutes from './routes/credit_condition.route';
@@ -53,11 +54,12 @@ const app = new App({
     WebhookTransactionRoutes,
     DepositTransactionRoutes,
     WithdrawTransactionRoutes,
+    CashbackRoutes,
     ReportTransactionRoutes,
   ],
   plugins: [
-    CORSPlugin,
     CookiePlugin,
+    CORSPlugin,
     AdminAuthPlugin.AccessTokenAdminAuthPlugin,
     AdminAuthPlugin.RefreshTokenAdminAuthPlugin,
     CommonAuthPlugin.AccessTokenCommonAuthPlugin,

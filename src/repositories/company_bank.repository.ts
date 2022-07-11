@@ -64,7 +64,7 @@ class CompanyBankRepository {
 
       let search = [];
 
-      filters.status = { $in: [COMPANY_BANK_STATUS.ACTIVE] };
+      filters.status = { $in: [COMPANY_BANK_STATUS.ACTIVE, COMPANY_BANK_STATUS.INACTIVE] };
 
       if (type?.length > 0 && typeof type !== 'string') {
         filters.type = {
@@ -78,8 +78,10 @@ class CompanyBankRepository {
         };
       }
 
-      if (status) {
-        filters.status = status;
+      if (status?.length > 0 && typeof status !== 'string') {
+        filters.status = {
+          $in: status,
+        };
       }
 
       const createdFilter: FilterQuery<CompanyBankDocument> = {};
@@ -153,7 +155,7 @@ class CompanyBankRepository {
         sortOptions = { createdAt: -1 };
       }
 
-      // console.log(query, sortOptions);
+      console.log(query, sortOptions);
 
       const result = await this._model.find(query, { _id: 0, password: 0 }).sort(sortOptions);
 

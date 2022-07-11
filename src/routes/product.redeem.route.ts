@@ -65,6 +65,11 @@ class RedeemProductRoutes {
             parsedFilter = { ...filters, status: [redeemStatus] };
           }
 
+          const { status } = filters;
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...parsedFilter, status: status.split(',') };
+          }
+
           const data = await redeem.findRedeemProductList(parsedFilter);
 
           return data;

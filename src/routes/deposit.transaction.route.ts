@@ -9,6 +9,7 @@ import {
   DepositActionBodyRequest,
 } from '../entities/dtos/deposit.transaction.dtos';
 import { AdminStatusConstant } from '../entities/schemas/admin.schema';
+import { TransactionStatus } from '../entities/schemas/transaction.schema';
 
 import { toFilterTransactionUseBankFullName } from '../helper/bank.handler';
 import responseHandler from '../helper/response.handler';
@@ -38,9 +39,17 @@ class DepositTransactionRoutes {
           const filters = request.query;
           let parsedFilter = { ...filters };
 
-          const { bankName } = filters;
+          const { bankName, companyBankId, status } = filters;
           if (bankName && typeof bankName === 'string') {
             parsedFilter = toFilterTransactionUseBankFullName({ ...filters, bankName: bankName.split(',') });
+          }
+
+          if (companyBankId && typeof companyBankId === 'string') {
+            parsedFilter = { ...parsedFilter, companyBankId: companyBankId.split(',') };
+          }
+
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...parsedFilter, status: status.split(',') as TransactionStatus[] };
           }
 
           const result = await deposit.listDepositTransaction(parsedFilter);
@@ -133,10 +142,6 @@ class DepositTransactionRoutes {
 
           if (!transactionId) {
             return { code: 400, message: 'transaction id not exist on params' };
-          }
-
-          if (!notes) {
-            return { code: 400, message: 'notes not exist on payload' };
           }
 
           const modifiedCount = await deposit.updateNoteDeposit(transactionId, notes, adminId);

@@ -23,6 +23,7 @@ export const DEFAULT_FEATURES = {
     adminManage: '1000',
     level: '1000',
     systemSetting: '1000',
+    cashback: '1000',
   },
   SUPER_ADMIN: {
     report: '1111',
@@ -37,7 +38,8 @@ export const DEFAULT_FEATURES = {
     product: '1111',
     adminManage: '1111',
     level: '1111',
-    systemSetting: '1000',
+    systemSetting: '1111',
+    cashback: '1111',
   },
 };
 
@@ -55,6 +57,7 @@ export interface FeatureAccessLevel {
   adminManage: string
   level: string
   systemSetting: string
+  cashback: string
 }
 
 export type PermissionFeatureResponse = Promise<FeatureAccessLevel>;
@@ -80,6 +83,7 @@ export const FeatureAccessLevelSchema = new mongoose.Schema<FeatureAccessLevel>(
     adminManage: defaultFeatureAccessLevelSchema,
     level: defaultFeatureAccessLevelSchema,
     systemSetting: defaultFeatureAccessLevelSchema,
+    cashback: defaultFeatureAccessLevelSchema,
   },
   {
     _id: false,

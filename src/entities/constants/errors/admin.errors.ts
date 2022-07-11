@@ -1,7 +1,11 @@
 export default {
   'ERR.ADMIN.AUTH.ACCESS_TOKEN.1': {
     code: 401,
-    message: 'unauthorize, Authorization token expired',
+    message: 'unauthorize, Authorization access token expired',
+  },
+  'ERR.ADMIN.AUTH.REFRESH_TOKEN.1': {
+    code: 401,
+    message: 'unauthorize, Authorization refresh token expired',
   },
   'ERR.ADMIN.USERNAME.1': {
     code: 400,

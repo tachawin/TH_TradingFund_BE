@@ -4,7 +4,7 @@ import {
 } from './transaction.dtos';
 
 export interface UpdateDepositNoteRequest {
-  notes: string
+  notes?: string
 }
 
 export interface UpdateDepositCustomerRequest {

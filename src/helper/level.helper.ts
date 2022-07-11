@@ -1,16 +1,28 @@
 import { CustomerLevel } from '../entities/schemas/customer_level.schema';
 
-const findLevel = (levelList: CustomerLevel[], totalDepositAmount: number) => {
+const findLevel = (levelList: CustomerLevel[], totalDepositAmount: number, currentInvestment: number) => {
   const levels = {};
   const minimumDepositList = [];
 
   levelList.forEach((levelInfo) => {
     const {
-      levelName, imageURL, minimumDepositAmount, maximumDepositAmount, investmentAmount, cashback,
+      investmentAmount,
+      levelName,
+      imageURL,
+      minimumDepositAmount,
+      maximumDepositAmount,
+      cashback,
     } = levelInfo;
+
     levels[minimumDepositAmount] = {
-      levelName, imageURL, minimumDepositAmount, maximumDepositAmount, investmentAmount, cashback,
+      investmentAmount,
+      levelName,
+      imageURL,
+      minimumDepositAmount,
+      maximumDepositAmount,
+      cashback,
     };
+
     minimumDepositList.push(minimumDepositAmount);
   });
 
@@ -18,12 +30,22 @@ const findLevel = (levelList: CustomerLevel[], totalDepositAmount: number) => {
 
   let levelMinimumDeposit = 0;
   minimumDepositList.some((minimumDeposit) => {
-    const isTotalDepositInRange = (totalDepositAmount <= levels[minimumDeposit].maximumDepositAmount && totalDepositAmount >= minimumDeposit);
-    // && with investmant amount after get API
+    const { maximumDepositAmount, investmentAmount: minimumInvestmentAmount } = levels[minimumDeposit];
+
+    const isNotExceedMaximumDepositAmount = totalDepositAmount <= maximumDepositAmount;
+    const isNotBelowMinimumDepositAmount = totalDepositAmount >= minimumDeposit;
+    const isNotBelowMinimumInvestAmount = currentInvestment >= minimumInvestmentAmount;
+
+    const isTotalDepositInRange = isNotExceedMaximumDepositAmount
+      && isNotBelowMinimumDepositAmount
+      && isNotBelowMinimumInvestAmount;
+
     if (isTotalDepositInRange) {
       levelMinimumDeposit = minimumDeposit;
+
       return true;
     }
+
     return false;
   });
 

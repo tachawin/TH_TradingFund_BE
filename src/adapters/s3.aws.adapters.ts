@@ -35,7 +35,7 @@ class S3Adapter {
   private setup() {
     this.s3 = new AWS.S3();
 
-    console.log('[S3Adapter.setup]: create AWS S3 client successfully 🎉');
+    console.info('[S3Adapter.setup]: create AWS S3 client successfully 🎉');
   }
 
   public uploadSteam(uploader: S3Uploader) {

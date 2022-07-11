@@ -85,7 +85,7 @@ export function timeFilterToTwelveFormat(date: string, format: 'am' | 'pm'): [Da
 
   const dateTH = toDateTHTimeZoneByYMD(year, month, day, 'floor');
 
-  console.log(dateTH);
+  console.info(dateTH);
 
   const start = new Date(new Date(dateTH).setHours(twelve.start.hours + 7, twelve.start.min));
   const end = new Date(new Date(dateTH).setHours(twelve.end.hours + 7, twelve.end.min));

@@ -30,7 +30,7 @@ class SNSAdapter {
   private setup() {
     this.sns = new AWS.SNS();
 
-    console.log('[SNSAdapter.setup]: create AWS SNS client successfully 🎉');
+    console.info('[SNSAdapter.setup]: create AWS SNS client successfully 🎉');
   }
 
   private generateOneTimePasswordCode(): string {
@@ -80,7 +80,7 @@ class SNSAdapter {
 
     await publishSMSPromise.then(
       async (data) => {
-        console.log(`MessageID is ${data.MessageId}`);
+        console.info(`MessageID is ${data.MessageId}`);
 
         await done(otp, refCode);
       },

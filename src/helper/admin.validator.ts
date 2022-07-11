@@ -22,6 +22,7 @@ const WHITELIST_FEATURES_PERMISSION = {
   adminManage: '0000',
   level: '0000',
   systemSetting: '0000',
+  cashback: '0000',
 };
 
 function statusValidate(status: string): [boolean, string] {
@@ -84,7 +85,7 @@ export function permissionValidate(permissions: FeatureAccessLevel): [boolean, s
   return [true, ''];
 }
 
-function passwordValidate(password: string): [boolean, string] {
+export function passwordValidate(password: string): [boolean, string] {
   const errorCode = 'ERR.ADMIN.PASSWORD.1';
 
   if (password.length < PASSWORD_LENGTH_MINIMUM) {

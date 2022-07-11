@@ -7,7 +7,7 @@ import {
   ListReportQueries,
 } from '../entities/dtos/report.transaction.dto';
 import { AdminStatusConstant } from '../entities/schemas/admin.schema';
-import { SHEET_COLUMNS_TRANSACTION, TransactionType } from '../entities/schemas/transaction.schema';
+import { SHEET_COLUMNS_TRANSACTION, TransactionStatus, TransactionType } from '../entities/schemas/transaction.schema';
 
 import { toFilterTransactionUseBankFullName } from '../helper/bank.handler';
 import responseHandler from '../helper/response.handler';
@@ -24,7 +24,7 @@ class ReportTransactionRoutes {
         config: {
           requiredStatus: AdminStatusConstant.ACTIVE,
           requiredFeatures: {
-            deposit: '1000',
+            report: '1000',
           },
         },
         preValidation: [
@@ -37,13 +37,23 @@ class ReportTransactionRoutes {
           const filters = request.query;
           let parsedFilter = { ...filters };
 
-          const { bankName, transactionType } = filters;
+          const {
+            bankName, transactionType, companyBankId, status,
+          } = filters;
           if (bankName && typeof bankName === 'string') {
             parsedFilter = toFilterTransactionUseBankFullName({ ...parsedFilter, bankName: bankName.split(',') });
           }
 
           if (transactionType && typeof transactionType === 'string') {
             parsedFilter = { ...parsedFilter, transactionType: transactionType.split(',') as TransactionType[] };
+          }
+
+          if (companyBankId && typeof companyBankId === 'string') {
+            parsedFilter = { ...parsedFilter, companyBankId: companyBankId.split(',') };
+          }
+
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...parsedFilter, status: status.split(',') as TransactionStatus[] };
           }
 
           const result = await report.listReportTransaction(parsedFilter);
@@ -61,11 +71,11 @@ class ReportTransactionRoutes {
         config: {
           requiredStatus: AdminStatusConstant.ACTIVE,
           requiredFeatures: {
-            deposit: '1000',
+            report: '1000',
           },
         },
         preValidation: [
-          (fastify as any).auth_admin_access_token,
+          (fastify as any).auth_admin_refresh_token,
           (fastify as any).enrich_features_permission,
         ],
       },
@@ -74,9 +84,23 @@ class ReportTransactionRoutes {
           const filters = request.query;
           let parsedFilter = { ...filters };
 
-          const { bankName } = filters;
+          const {
+            bankName, transactionType, companyBankId, status,
+          } = filters;
           if (bankName && typeof bankName === 'string') {
             parsedFilter = toFilterTransactionUseBankFullName({ ...filters, bankName: bankName.split(',') });
+          }
+
+          if (transactionType && typeof transactionType === 'string') {
+            parsedFilter = { ...parsedFilter, transactionType: transactionType.split(',') as TransactionType[] };
+          }
+
+          if (companyBankId && typeof companyBankId === 'string') {
+            parsedFilter = { ...parsedFilter, companyBankId: companyBankId.split(',') };
+          }
+
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...parsedFilter, status: status.split(',') as TransactionStatus[] };
           }
 
           const result = await report.listReportTransaction(parsedFilter);

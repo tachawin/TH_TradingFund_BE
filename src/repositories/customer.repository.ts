@@ -51,23 +51,27 @@ class CustomerRepository {
     }
   }
 
+  public async findAllCustomerActive(): CustomerListResponse {
+    try {
+      const result = await this._model.find({ status: CUSTOMER_STATUS.ACTIVE }, { _id: 0, password: 0 }).sort({ createdAt: -1 });
+
+      return result;
+    } catch (error) {
+      throw LError('[CustomerRepository.findAllCustomerActive]: unable to find all active customer on database ', error);
+    }
+  }
+
   public async findAllCustomer(listFilters: CustomerListFilterDTO): CustomerListResponse {
     let query: FilterQuery<CustomerDocument> = {};
 
     try {
       const {
-        level, bank, startCreated, endCreated, startLastLogin, endLastLogin, keyword, sortField, sortDirection,
+        bank, startCreated, endCreated, startLastLogin, endLastLogin, keyword, sortField, sortDirection,
       } = listFilters;
 
       const filters: CustomerListFilter = {};
 
       let search = [];
-
-      if (level?.length > 0 && typeof level !== 'string') {
-        filters.levelId = {
-          $in: level,
-        };
-      }
 
       if (bank?.length > 0 && typeof bank !== 'string') {
         filters.bankName = {
@@ -165,7 +169,7 @@ class CustomerRepository {
         sortOptions = { createdAt: -1 };
       }
 
-      // console.log(query, sortOptions);
+      console.info(query, sortOptions);
 
       const result = await this._model.find(query, { _id: 0, password: 0 }).sort(sortOptions);
 
@@ -181,7 +185,11 @@ class CustomerRepository {
         customerId,
         status: CUSTOMER_STATUS.ACTIVE,
       };
-      const { _doc: result } = await this._model.findOne(query, { _id: 0 }) as any;
+      const result = await this._model.findOne(query, { _id: 0 }) as any;
+
+      if (result) {
+        return result._doc;
+      }
 
       return result;
     } catch (error) {

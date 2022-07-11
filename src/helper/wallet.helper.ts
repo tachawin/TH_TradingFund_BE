@@ -13,3 +13,9 @@ export function generateHashTransaction(bankAccountNumber: string, mobileNumber:
 
   return [crypto.createHash('md5').update(plaintext).digest('hex'), transactionAt];
 }
+
+export function generateHashCashback(mobileNumber: string, dateStart: string, dateEnd: string): string {
+  const plaintext = `${mobileNumber}${dateStart}${dateEnd}`;
+
+  return crypto.createHash('md5').update(plaintext).digest('hex');
+}

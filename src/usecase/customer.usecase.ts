@@ -55,12 +55,15 @@ async function findCustomerList(filters: CustomerListFilterDTO): CustomerListRes
     const minimumDepositList = [];
     levelResults.forEach((levelInfo) => {
       const {
-        levelName, imageURL, minimumDepositAmount, maximumDepositAmount, investmentAmount, cashback,
+        levelId, levelName, imageURL, minimumDepositAmount, maximumDepositAmount, investmentAmount, cashback,
       } = levelInfo;
-      levels[minimumDepositAmount] = {
-        levelName, imageURL, maximumDepositAmount, investmentAmount, cashback,
-      };
-      minimumDepositList.push(minimumDepositAmount);
+
+      if (!filters.level || filters.level.indexOf(levelId.toString()) > -1) {
+        levels[minimumDepositAmount] = {
+          levelName, imageURL, maximumDepositAmount, investmentAmount, cashback,
+        };
+        minimumDepositList.push(minimumDepositAmount);
+      }
     });
     minimumDepositList.sort((a, b) => a - b);
 
@@ -80,6 +83,11 @@ async function findCustomerList(filters: CustomerListFilterDTO): CustomerListRes
         }
         return false;
       });
+
+      if (!levels[levelMinimumDeposit]) {
+        return null;
+      }
+
       const level = { ...levels[levelMinimumDeposit] };
 
       try {
@@ -105,7 +113,7 @@ async function findCustomerList(filters: CustomerListFilterDTO): CustomerListRes
 
     const result = await Promise.all(promises);
 
-    return result;
+    return result.filter((item) => item != null);
   } catch (error) {
     throw LError('[usecase.findCustomerList]: unable to find all customer', error);
   }
@@ -118,7 +126,9 @@ async function findCustomerByCustomerID(customerId: string): Promise<CustomerWit
 
     const levelResults = await customerLevel.findAllLevel();
 
-    const level = findLevel(levelResults, totalDepositAmount);
+    //
+    const { investAmount: currentInvestment } = await walletClient.summaryReport({ username: mobileNumber });
+    const level = findLevel(levelResults, totalDepositAmount, currentInvestment);
 
     const bankAcronym = bankName.split(' ')[0];
     const bank = { ...CompanyBankTH[bankAcronym], acronym: bankAcronym };
@@ -152,8 +162,8 @@ async function getAmountCustomerRegisterByDay(dateStart: string, dateEnd: string
     const start = timeFilterToDateTHTimeZoneFloor(dateStart);
     const end = timeFilterToDateTHTimeZoneFloor(dateEnd);
 
-    console.log(dateStart, start);
-    console.log(dateEnd, end);
+    console.info(dateStart, start);
+    console.info(dateEnd, end);
 
     const result: DashboardAmountCustomerByDay = {};
 

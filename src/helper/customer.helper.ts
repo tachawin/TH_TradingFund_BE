@@ -1,9 +1,10 @@
 import CompanyBankTH from '../entities/constants/company_bank_th';
 import { WithdrawListFilterDTO } from '../entities/dtos/withdraw.transaction.dtos';
+import { Admin } from '../entities/schemas/admin.schema';
 import { Customer } from '../entities/schemas/customer.schema';
 import { WithdrawList, Transaction } from '../entities/schemas/transaction.schema';
 
-const findLastDepositAmount = (customerList: Customer[], transactionList: Transaction[], filters: WithdrawListFilterDTO) => {
+const findTransactionDetails = (customerList: Customer[], adminList: Admin[], transactionList: Transaction[], filters: WithdrawListFilterDTO) => {
   // TODO: handle this technical dept
   // create map: key is customerId, value is lastDepositAmount
   const customerIdLastDepositMaps: { [key: string]: number } = {};
@@ -12,10 +13,18 @@ const findLastDepositAmount = (customerList: Customer[], transactionList: Transa
     customerIdLastDepositMaps[customerId] = lastDepositAmount || 0;
   });
 
+  const adminIdadminNameMaps = {};
+  adminList.forEach((adminInfo) => {
+    const { adminId, name } = adminInfo;
+    adminIdadminNameMaps[adminId] = name;
+  });
+
   // add lastDepositAmount to each transaction by filter
   const result: WithdrawList = [];
   (transactionList as any).forEach(({ _doc: record }) => {
-    const { customerId, payerBankName, recipientBankName } = record;
+    const {
+      customerId, payerBankName, recipientBankName, adminId,
+    } = record;
     const resultRecord = { ...record };
 
     if (payerBankName) {
@@ -28,6 +37,11 @@ const findLastDepositAmount = (customerList: Customer[], transactionList: Transa
       const recipientBankAcronym = recipientBankName.split(' ')[0];
       const recipientBank = { ...CompanyBankTH[recipientBankAcronym], acronym: recipientBankAcronym };
       resultRecord.recipientBank = recipientBank;
+    }
+
+    if (adminId) {
+      resultRecord.adminName = adminIdadminNameMaps[adminId];
+      delete resultRecord.adminId;
     }
 
     const recordLastDeposit = customerIdLastDepositMaps[customerId];
@@ -49,5 +63,5 @@ const findLastDepositAmount = (customerList: Customer[], transactionList: Transa
 };
 
 export {
-  findLastDepositAmount,
+  findTransactionDetails,
 };

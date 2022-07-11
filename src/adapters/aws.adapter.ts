@@ -30,7 +30,7 @@ class AWSAdapter {
   private setup() {
     AWS.config.update(this.aws_options);
 
-    console.log('[AWSAdapter.setup]: setup global configuration for AWS successfully 🎉');
+    console.info('[AWSAdapter.setup]: setup global configuration for AWS successfully 🎉');
   }
 
   public sns(): InstanceType<typeof SNSAdapter> {

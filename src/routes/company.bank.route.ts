@@ -8,6 +8,7 @@ import {
   ListCompanyBankQueries,
 } from '../entities/dtos/company_bank.dtos';
 import { AdminStatusConstant } from '../entities/schemas/admin.schema';
+import { CompanyBankStatus } from '../entities/schemas/company_bank.schema';
 
 import {
   companyBankInfoValidate,
@@ -69,13 +70,17 @@ class CompanyBankRoutes {
           const filters = request.query;
           let parsedFilter = { ...filters };
 
-          const { bank, type } = filters;
+          const { bank, type, status } = filters;
           if (bank && typeof bank === 'string') {
             parsedFilter = { ...filters, bank: bank.split(',') };
           }
 
           if (type && typeof type === 'string') {
             parsedFilter = { ...filters, type: type.split(',') };
+          }
+
+          if (status && typeof status === 'string') {
+            parsedFilter = { ...filters, status: status.split(',') as CompanyBankStatus[] };
           }
 
           const data = await companyBank.findCompanyBankList(parsedFilter);

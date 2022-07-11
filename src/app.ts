@@ -50,7 +50,7 @@ class App {
     plugins.forEach((plugin) => {
       this.app.register(plugin);
 
-      console.log(`[App.plugins]: register ${plugin.name} plugin successfully 📌`);
+      console.info(`[App.plugins]: register ${plugin.name} plugin successfully 📌`);
     });
   }
 
@@ -61,15 +61,15 @@ class App {
       const router = new Route();
       this.app.register(router.routes, { prefix: router.prefix_route });
 
-      console.log(`[App.routes]: setup ${router.constructor.name} route successfully ✨`);
+      console.info(`[App.routes]: setup ${router.constructor.name} route successfully ✨`);
     });
   }
 
   public listen() {
     this.app.listen(this.app_port, this.app_ip, () => {
-      console.log('[App.listen]: Admin Server 🚀');
-      console.log(`[App.listen]: Listening on the http://${this.app_domain}:${this.app_port} 🌟`);
-      console.log(`[App.listen]: Working on ${this.app_environment.toUpperCase()} ENVIRONMENT 👻`);
+      console.info('[App.listen]: Admin Server 🚀');
+      console.info(`[App.listen]: Listening on the http://${this.app_domain}:${this.app_port} 🌟`);
+      console.info(`[App.listen]: Working on ${this.app_environment.toUpperCase()} ENVIRONMENT 👻`);
     });
   }
 }

@@ -48,7 +48,7 @@ class SettingRoutes {
         config: {
           requiredStatus: AdminStatusConstant.ACTIVE,
           requiredFeatures: {
-            systemSetting: '1010',
+            systemSetting: '1000',
           },
         },
         preValidation: [

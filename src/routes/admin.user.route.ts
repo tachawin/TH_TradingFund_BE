@@ -22,7 +22,9 @@ import {
   adminInfoValidate,
   adminInformationUpdateValidate,
   permissionValidate,
+  passwordValidate,
 } from '../helper/admin.validator';
+import { LError, SError } from '../helper/errors.handler';
 import { hashing } from '../helper/hash.handler';
 import responseHandler from '../helper/response.handler';
 
@@ -49,6 +51,7 @@ class AdminRoutes {
       async (request, reply) => {
         responseHandler(async () => {
           const { body: adminInfo } = request;
+          const { role: adminRole } = request.user as AdminAccessTokenPayload;
 
           adminInfoValidate(adminInfo);
 
@@ -57,6 +60,10 @@ class AdminRoutes {
           let adminFeatures: FeatureAccessLevel = DEFAULT_FEATURES.ADMIN;
           if (role === AdminRoleConstant.SUPER_ADMIN) {
             adminFeatures = DEFAULT_FEATURES.SUPER_ADMIN;
+          }
+
+          if (role === AdminRoleConstant.SUPER_ADMIN && adminRole === AdminRoleConstant.ADMIN) {
+            throw LError('unable to create super admin, permission denied');
           }
 
           if (features) {
@@ -179,6 +186,40 @@ class AdminRoutes {
           const newAdmin = await admin.updateAdmin(adminId, infoChange);
 
           return newAdmin;
+        }, reply);
+
+        await reply;
+      },
+    );
+
+    fastify.patch<{ Body: { newPassword: string }, Params: UpdateAdminParams }>(
+      '/change/password/:adminId',
+      {
+        config: {
+          requiredStatus: AdminStatusConstant.ACTIVE,
+          requiredRole: AdminRoleConstant.SUPER_ADMIN,
+          requiredFeatures: {
+            adminManage: '1010',
+          },
+        },
+        preValidation: [
+          (fastify as any).auth_admin_access_token,
+          (fastify as any).enrich_features_permission,
+        ],
+      },
+      async (request, reply) => {
+        responseHandler(async () => {
+          const { adminId } = request.params as AdminAccessTokenPayload;
+          const { newPassword } = request.body;
+
+          const [isPasswordFormat, passwordErrorCode] = passwordValidate(newPassword);
+          if (!isPasswordFormat) {
+            throw SError(passwordErrorCode);
+          }
+
+          await admin.changeAdminPassword(adminId, newPassword);
+
+          return { code: 201, message: 'password updated successfully' };
         }, reply);
 
         await reply;

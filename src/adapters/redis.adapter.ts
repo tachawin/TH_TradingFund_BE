@@ -61,7 +61,7 @@ class RedisAdapter {
   private async connect() {
     await this.redisClient.connect();
 
-    console.log('[RedisAdapter.connected]: Redis has connected 🎉');
+    console.info('[RedisAdapter.connected]: Redis has connected 🎉');
   }
 
   private error(error: Error) {
@@ -73,7 +73,7 @@ class RedisAdapter {
   private disconnect() {
     this.redisClient.quit();
 
-    console.log('[RedisAdapter.disconnect]: Redis has disconnected 👻');
+    console.info('[RedisAdapter.disconnect]: Redis has disconnected 👻');
   }
 
   public async set(key: string, value: string) {

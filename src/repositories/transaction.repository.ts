@@ -19,6 +19,7 @@ import {
   TransactionTypeConstant,
   Transaction,
   TransactionType,
+  TransactionStatus,
 } from '../entities/schemas/transaction.schema';
 
 import { LError } from '../helper/errors.handler';
@@ -86,7 +87,7 @@ class TransactionRepository {
         },
       };
 
-      console.log(query);
+      console.info(query);
       const result = await this._model.findOne(query, { _id: 0 });
 
       return result;
@@ -162,15 +163,21 @@ class TransactionRepository {
         ],
       };
       if (status) {
-        filters.status = { $in: status };
+        let statusFilter: TransactionStatus | MongoMatchFilter<TransactionStatus> = status as TransactionStatus;
+
+        if (Array.isArray(statusFilter)) {
+          statusFilter = { $in: statusFilter };
+        }
+
+        filters.status = statusFilter;
       }
 
-      const createdFilter: FilterQuery<TransactionDocument> = {};
+      const transactionDateFilter: FilterQuery<TransactionDocument> = {};
       if (start) {
-        createdFilter.$gte = timeFilterToDateTHTimeZoneFloor(start);
+        transactionDateFilter.$gte = timeFilterToDateTHTimeZoneFloor(start);
       }
       if (end) {
-        createdFilter.$lte = timeFilterToDateTHTimeZoneCeil(end);
+        transactionDateFilter.$lte = timeFilterToDateTHTimeZoneCeil(end);
       }
 
       const amountFilter: FilterQuery<TransactionDocument> = {};
@@ -225,9 +232,9 @@ class TransactionRepository {
         multiFilter.push({ amount: amountFilter });
       }
 
-      const isCreatedFilterTimeRange = Object.keys(createdFilter).length !== 0;
-      if (isCreatedFilterTimeRange) {
-        multiFilter.push({ createdAt: createdFilter });
+      const isTransactionDateFilterTimeRange = Object.keys(transactionDateFilter).length !== 0;
+      if (isTransactionDateFilterTimeRange) {
+        multiFilter.push({ transactionTimestamp: transactionDateFilter });
       }
 
       const isMultiFilter = multiFilter.length > 1;
@@ -248,8 +255,8 @@ class TransactionRepository {
         query = { amount: amountFilter };
       }
 
-      if (!isMultiFilter && isCreatedFilterTimeRange) {
-        query = { createdAt: createdFilter };
+      if (!isMultiFilter && isTransactionDateFilterTimeRange) {
+        query = { transactionTimestamp: transactionDateFilter };
       }
 
       if (isMultiFilter) {
@@ -273,7 +280,7 @@ class TransactionRepository {
         sortOptions = { createdAt: -1 };
       }
 
-      // console.log(query, sortOptions);
+      // console.info(query, sortOptions);
 
       const result = await this._model.find(query, { _id: 0, ...fields }).sort(sortOptions);
 
@@ -373,6 +380,24 @@ class TransactionRepository {
 
       const { modifiedCount } = await this._model.updateOne(query, {
         status,
+      });
+
+      return modifiedCount;
+    } catch (error) {
+      throw LError('[TransactionRepository.updateTransactionStatusByHash]: unable to update status transaction', error);
+    }
+  }
+
+  public async cancelRequestWithdrawTransaction(transactionId: string): Promise<number> {
+    try {
+      const query = {
+        transactionId,
+        transactionType: TransactionTypeConstant.REQUEST_WITHDRAW,
+        status: TransactionStatusConstant.SUCCESS,
+      };
+
+      const { modifiedCount } = await this._model.updateOne(query, {
+        $set: { transactionType: TransactionTypeConstant.WITHDRAW, status: TransactionStatusConstant.CANCEL },
       });
 
       return modifiedCount;
