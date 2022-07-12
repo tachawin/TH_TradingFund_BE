@@ -116,6 +116,7 @@ db:
       api_external_services: api-external-services
       referral_list: referral-list
       job_events_failed: job-events-failed
+      cashback_customer_history: cashback-customer-histories
   redis:
     protocol: redis
     username: default
